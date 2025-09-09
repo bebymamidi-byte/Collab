@@ -3,18 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stop Motion Dashboard</title>
-  <!-- Fonts & icons -->
+  <title>Stop Motion Dashboard — Reference Video</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- gif.js for export -->
   <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
-
   <style>
-    :root{
-      --bg:#0f1724; --panel:#081024; --muted:#9aa8bf; --accent:#06b6d4; --accent-2:#7c3aed; --glass:rgba(255,255,255,0.02); --radius:12px; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
-    }
+    :root{--bg:#0f1724;--panel:#081024;--muted:#9aa8bf;--accent:#06b6d4;--accent-2:#7c3aed;--glass:rgba(255,255,255,0.02);--radius:12px;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,var(--bg),#07102a);color:#e6eef8;padding:18px}
     .app{max-width:1200px;margin:0 auto}
@@ -25,38 +20,26 @@
     .controls{display:flex;gap:8px;align-items:center}
     .panel{background:linear-gradient(180deg,var(--panel), rgba(255,255,255,0.01));border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03)}
     .layout{display:grid;grid-template-columns:300px 1fr;gap:16px}
-
-    /* left sidebar */
     .sidebar{display:flex;flex-direction:column;gap:12px}
     .project-list{display:flex;flex-direction:column;gap:8px}
     .project-item{padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
     .project-item.active{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 8px 24px rgba(2,8,23,0.6)}
-
     .uploader{display:flex;flex-direction:column;gap:8px}
     input[type=file]{display:block}
-
-    /* main area */
     .top-area{display:flex;gap:12px}
     .viewer{flex:1;display:flex;flex-direction:column;gap:10px}
     .canvas-wrap{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:10px;padding:10px;display:flex;justify-content:center;align-items:center;border:1px solid rgba(255,255,255,0.03)}
     canvas{background:#fff;border-radius:6px;max-width:100%;height:auto}
-
     .controls-row{display:flex;gap:8px;align-items:center}
     .small{font-size:13px;color:var(--muted)}
     .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;cursor:pointer}
-
-    /* timeline */
     .timeline{margin-top:10px;display:flex;gap:8px;overflow:auto;padding:8px;border-radius:8px}
     .thumb{width:90px;height:64px;border-radius:6px;background:#222;background-size:cover;background-position:center;border:2px solid transparent;cursor:pointer}
     .thumb.active{outline:3px solid rgba(124,58,237,0.22)}
-
-    /* right panel */
     .inspector{width:320px;display:flex;flex-direction:column;gap:12px}
     .stat{display:flex;justify-content:space-between;align-items:center}
     .slider{width:100%}
-
     footer{color:var(--muted);font-size:13px;margin-top:12px;text-align:center}
-
     @media (max-width:900px){.layout{grid-template-columns:1fr} .inspector{width:100%}}
   </style>
 </head>
@@ -66,13 +49,13 @@
       <div class="brand">
         <div class="logo">SM</div>
         <div>
-          <h1>Stop Motion Dashboard</h1>
-          <div class="small">Create, preview, and export stop-motion animations</div>
+          <h1>Stop Motion Dashboard — Reference Video</h1>
+          <div class="small">Add a reference video to guide your frame-by-frame animation</div>
         </div>
       </div>
       <div class="controls">
         <button class="btn" id="newProjectBtn"><i class="fa-solid fa-folder-plus"></i> New Project</button>
-        <button class="btn" id="saveProjectBtn" title="Download project JSON"><i class="fa-solid fa-download"></i> Save</button>
+        <button class="btn" id="saveProjectBtn"><i class="fa-solid fa-download"></i> Save</button>
         <button class="btn" id="loadProjectBtn"><i class="fa-solid fa-upload"></i> Load</button>
       </div>
     </header>
@@ -125,7 +108,7 @@
 
               <div style="width:14px"></div>
               <div class="small">Onion skin</div>
-              <input id="onionCount" type="range" min="0" max="5" value="2" class="slider" title="Number of previous frames to overlay" />
+              <input id="onionCount" type="range" min="0" max="5" value="2" class="slider" />
               <div class="small" id="onionVal">2</div>
 
               <div style="width:14px"></div>
@@ -139,18 +122,25 @@
 
           <aside class="inspector panel">
             <div>
-              <div class="small">Preview Scale</div>
-              <input id="scale" type="range" min="25" max="150" value="100" class="slider" />
+              <div class="small">Reference video</div>
+              <input id="refFile" type="file" accept="video/*" />
+              <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                <button class="btn" id="refPlayPauseBtn" disabled><i class="fa-solid fa-play"></i></button>
+                <button class="btn" id="refMuteBtn" disabled><i class="fa-solid fa-volume-high"></i></button>
+              </div>
+              <div class="small" style="margin-top:6px">Reference opacity</div>
+              <input id="refOpacity" type="range" min="0" max="100" value="30" class="slider" />
+
+              <div class="small" style="margin-top:6px">Sync reference to frames</div>
+              <label style="display:flex;align-items:center;gap:8px"><input id="syncRef" type="checkbox" /> Enable</label>
+              <div class="small">Offset (sec)</div>
+              <input id="refOffset" type="number" value="0" step="0.1" style="width:100%"/>
+
+              <div class="small" style="margin-top:8px">Include ref in export</div>
+              <label style="display:flex;align-items:center;gap:8px"><input id="includeRefExport" type="checkbox" /> Include</label>
             </div>
 
-            <div>
-              <div class="small">Playback Mode</div>
-              <select id="playMode" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03)">
-                <option value="loop">Loop</option>
-                <option value="once">Play Once</option>
-                <option value="pingpong">Ping-Pong</option>
-              </select>
-            </div>
+            <div class="stat"><div class="small">Preview Scale</div><input id="scale" type="range" min="25" max="150" value="100" class="slider" /></div>
 
             <div class="stat">
               <div class="small">Selected frame:</div>
@@ -169,35 +159,37 @@
           </aside>
         </div>
 
-        <footer class="small">Tip: Drag image files onto the timeline area or use the file input. Use webcam capture to grab live frames.</footer>
+        <footer class="small">Tip: Load a reference video (e.g., the live-action performance) to guide timing and motion. Toggle "Sync reference" to map the video's time to your frame index.</footer>
       </main>
     </div>
   </div>
 
   <input id="loadFile" type="file" accept="application/json" style="display:none" />
+  <!-- hidden reference video element used as source for overlay -->
+  <video id="refVideo" style="display:none" crossorigin="anonymous"></video>
 
   <script>
-    // App state
+    // Based on previous stop-motion dashboard, extended with reference video overlay
     let projects = [];
     let currentProject = null;
-    let stage = document.getElementById('stage');
-    let ctx = stage.getContext('2d');
-    let timeline = document.getElementById('timeline');
-    let frameCountEl = document.getElementById('frameCount');
-    let projectTitleEl = document.getElementById('projectTitle');
-    let projectListEl = document.getElementById('projectList');
-    let projectCountEl = document.getElementById('projectCount');
-    let fpsSlider = document.getElementById('fps');
-    let fpsVal = document.getElementById('fpsVal');
-    let onionCount = document.getElementById('onionCount');
-    let onionVal = document.getElementById('onionVal');
-    let onionOpacity = document.getElementById('onionOpacity');
-    let onionOpacityVal = document.getElementById('onionOpacityVal');
-    let scaleSlider = document.getElementById('scale');
-    let playMode = document.getElementById('playMode');
-    let selectedIndexEl = document.getElementById('selectedIndex');
+    const stage = document.getElementById('stage'); const ctx = stage.getContext('2d');
+    const timeline = document.getElementById('timeline');
+    const frameCountEl = document.getElementById('frameCount');
+    const projectTitleEl = document.getElementById('projectTitle');
+    const projectListEl = document.getElementById('projectList');
+    const projectCountEl = document.getElementById('projectCount');
+    const fpsSlider = document.getElementById('fps'); const fpsVal = document.getElementById('fpsVal');
+    const onionCount = document.getElementById('onionCount'); const onionVal = document.getElementById('onionVal');
+    const onionOpacity = document.getElementById('onionOpacity'); const onionOpacityVal = document.getElementById('onionOpacityVal');
+    const scaleSlider = document.getElementById('scale'); const selectedIndexEl = document.getElementById('selectedIndex');
 
-    // controls
+    // reference video elements
+    const refFile = document.getElementById('refFile'); const refVideo = document.getElementById('refVideo');
+    const refPlayPauseBtn = document.getElementById('refPlayPauseBtn'); const refMuteBtn = document.getElementById('refMuteBtn');
+    const refOpacity = document.getElementById('refOpacity'); const syncRef = document.getElementById('syncRef'); const refOffset = document.getElementById('refOffset');
+    const includeRefExport = document.getElementById('includeRefExport');
+
+    // basic controls
     document.getElementById('newProjectBtn').addEventListener('click', createNewProject);
     document.getElementById('fileInput').addEventListener('change', handleFileInput);
     document.getElementById('playBtn').addEventListener('click', ()=>startPlayback());
@@ -215,54 +207,38 @@
     document.getElementById('exportGifBtn').addEventListener('click', exportGIF);
 
     // webcam
-    let video = document.getElementById('video');
-    let stream = null;
-    document.getElementById('startCamBtn').addEventListener('click', async ()=>{
-      if(stream){ stopCamera(); return; }
-      try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720}, audio:false});
-        video.srcObject = stream; video.style.display = 'block'; document.getElementById('startCamBtn').textContent = 'Stop Camera'; document.getElementById('captureBtn').disabled = false;
-      }catch(e){ alert('Camera access denied or not available') }
-    });
-    document.getElementById('captureBtn').addEventListener('click', ()=>{
-      if(!currentProject) createNewProject();
-      const w = stage.width, h = stage.height;
-      // draw video to temp canvas
-      const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h; const tctx = tmp.getContext('2d');
-      tctx.drawImage(video,0,0,w,h);
-      tmp.toBlob(blob=>{
-        const url = URL.createObjectURL(blob);
-        addFrameFromUrl(url);
-      },'image/png');
-    });
+    const video = document.getElementById('video'); let stream = null;
+    document.getElementById('startCamBtn').addEventListener('click', async ()=>{ if(stream){ stopCamera(); return; } try{ stream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720}, audio:false}); video.srcObject = stream; video.style.display = 'block'; document.getElementById('startCamBtn').textContent = 'Stop Camera'; document.getElementById('captureBtn').disabled = false; }catch(e){ alert('Camera access denied or not available') } });
+    document.getElementById('captureBtn').addEventListener('click', ()=>{ if(!currentProject) createNewProject(); const w = stage.width, h = stage.height; const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h; const tctx = tmp.getContext('2d'); tctx.drawImage(video,0,0,w,h); tmp.toBlob(blob=>{ const url = URL.createObjectURL(blob); addFrameFromUrl(url); },'image/png'); });
     function stopCamera(){ if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null; video.style.display='none'; document.getElementById('startCamBtn').textContent='Start Camera'; document.getElementById('captureBtn').disabled=true} }
+
+    // ref video handlers
+    refFile.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); loadReferenceVideo(url); });
+    refPlayPauseBtn.addEventListener('click', ()=>{ if(refVideo.paused) refVideo.play(); else refVideo.pause(); });
+    refMuteBtn.addEventListener('click', ()=>{ refVideo.muted = !refVideo.muted; refMuteBtn.innerHTML = refVideo.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>'; });
+    refOpacity.addEventListener('input', ()=>{ renderStage(); });
+
+    function loadReferenceVideo(url){ refVideo.src = url; refVideo.load(); refPlayPauseBtn.disabled = false; refMuteBtn.disabled = false; refVideo.style.display = 'none'; refVideo.onplay = ()=>{ refPlayPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>' }; refVideo.onpause = ()=>{ refPlayPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>' } }
 
     // playback
     let playing = false; let playTimer = null; let pingPongDir = 1;
-    function startPlayback(){ if(!currentProject || currentProject.frames.length===0) return; playing = true; const fps = Number(fpsSlider.value); const interval = 1000 / fps; const mode = playMode.value; clearInterval(playTimer);
-      playTimer = setInterval(()=>{
-        let idx = currentProject.currentIndex || 0;
-        if(mode==='loop') idx = (idx + 1) % currentProject.frames.length;
-        else if(mode==='once'){ idx = idx + 1; if(idx >= currentProject.frames.length){ idx = currentProject.frames.length -1; stopPlayback(); }}
-        else if(mode==='pingpong'){ idx += pingPongDir; if(idx>=currentProject.frames.length){ pingPongDir = -1; idx = currentProject.frames.length-2 } if(idx<0){ pingPongDir = 1; idx = 1 }}
-        selectFrame(idx);
-      }, interval);
+    function startPlayback(){ if(!currentProject || currentProject.frames.length===0) return; playing = true; const fps = Number(fpsSlider.value); const interval = 1000 / fps; const mode = document.getElementById('playMode').value; clearInterval(playTimer); if(syncRef.checked && refVideo.src){ refVideo.play().catch(()=>{}); }
+      playTimer = setInterval(()=>{ let idx = currentProject.currentIndex || 0; if(mode==='loop') idx = (idx + 1) % currentProject.frames.length; else if(mode==='once'){ idx = idx + 1; if(idx >= currentProject.frames.length){ idx = currentProject.frames.length -1; stopPlayback(); }} else if(mode==='pingpong'){ idx += pingPongDir; if(idx>=currentProject.frames.length){ pingPongDir = -1; idx = currentProject.frames.length-2 } if(idx<0){ pingPongDir = 1; idx = 1 }} selectFrame(idx); }, interval);
     }
-    function stopPlayback(){ playing = false; clearInterval(playTimer); playTimer = null }
+    function stopPlayback(){ playing = false; clearInterval(playTimer); playTimer = null; if(syncRef.checked && refVideo.src){ refVideo.pause(); }}
 
     // project functions
     function createNewProject(){ const p = {id: 'p'+Date.now(), title: 'Project '+(projects.length+1), frames: [], currentIndex:0, created: new Date().toISOString()}; projects.push(p); setCurrentProject(p.id); renderProjectList(); }
     function setCurrentProject(id){ currentProject = projects.find(x=>x.id===id); if(!currentProject) return; projectTitleEl.textContent = currentProject.title; frameCountEl.textContent = currentProject.frames.length; renderTimeline(); projectCountEl.textContent = projects.length; updateProjectJson(); selectFrame(currentProject.currentIndex || 0); }
-
     function renderProjectList(){ projectListEl.innerHTML=''; projects.forEach(p=>{ const div = document.createElement('div'); div.className='project-item'+(currentProject&&currentProject.id===p.id?' active':''); div.textContent = p.title; div.addEventListener('click', ()=>setCurrentProject(p.id)); projectListEl.appendChild(div) }); projectCountEl.textContent = projects.length; }
-
     function updateProjectJson(){ document.getElementById('projectJson').value = JSON.stringify(currentProject || {}, null, 2); }
 
     // timeline
     function renderTimeline(){ timeline.innerHTML=''; if(!currentProject) return; currentProject.frames.forEach((f,i)=>{ const div = document.createElement('div'); div.className = 'thumb'+(i===currentProject.currentIndex?' active':''); div.style.backgroundImage = `url(${f.url})`; div.dataset.index = i; div.addEventListener('click', ()=>selectFrame(i)); timeline.appendChild(div); }); frameCountEl.textContent = currentProject.frames.length; updateProjectJson(); }
 
-    function selectFrame(idx){ if(!currentProject) return; if(idx < 0) idx = 0; if(idx >= currentProject.frames.length) idx = currentProject.frames.length -1; currentProject.currentIndex = idx; selectedIndexEl.textContent = (idx+1) + ' / ' + Math.max(1,currentProject.frames.length); // highlight
-      [...timeline.children].forEach(t=>t.classList.toggle('active', Number(t.dataset.index)===idx)); renderStage(); }
+    function selectFrame(idx){ if(!currentProject) return; if(idx < 0) idx = 0; if(idx >= currentProject.frames.length) idx = currentProject.frames.length -1; currentProject.currentIndex = idx; selectedIndexEl.textContent = (idx+1) + ' / ' + Math.max(1,currentProject.frames.length); [...timeline.children].forEach(t=>t.classList.toggle('active', Number(t.dataset.index)===idx)); // sync reference video time if enabled
+      if(syncRef.checked && refVideo.src){ const fps = Number(fpsSlider.value); const offset = Number(refOffset.value) || 0; const t = (idx / fps) + offset; try{ refVideo.currentTime = Math.min(Math.max(0,t), Math.max(0,refVideo.duration||0)); }catch(e){} }
+      renderStage(); }
 
     function deleteSelectedFrame(){ if(!currentProject) return; const idx = currentProject.currentIndex || 0; if(currentProject.frames.length===0) return; currentProject.frames.splice(idx,1); if(idx >= currentProject.frames.length) currentProject.currentIndex = currentProject.frames.length-1; renderTimeline(); selectFrame(currentProject.currentIndex || 0); }
 
@@ -270,82 +246,58 @@
     function handleFileInput(e){ const files = Array.from(e.target.files); files.forEach(file=>{ const url = URL.createObjectURL(file); addFrameFromUrl(url); }); e.target.value = '' }
     function addFrameFromUrl(url){ if(!currentProject) createNewProject(); const img = new Image(); img.onload = ()=>{ currentProject.frames.push({url, width: img.width, height: img.height}); renderTimeline(); selectFrame(currentProject.frames.length-1); updateProjectJson(); } img.src = url }
 
-    // stage drawing
-    function renderStage(){ ctx.clearRect(0,0,stage.width,stage.height); // determine scale
-      const scalePercent = Number(scaleSlider.value)/100;
-      const w = stage.width * scalePercent; const h = stage.height * scalePercent; // center
-      const ox = (stage.width - w)/2; const oy = (stage.height - h)/2;
-
-      // onion skinning: draw previous N frames with reduced opacity
-      if(currentProject && currentProject.frames.length>0){ const idx = currentProject.currentIndex || 0; const onion = Number(onionCount.value); const opacity = Number(onionOpacity.value)/100;
-        // draw previous frames back-to-front
-        for(let i = Math.max(0, idx - onion); i < idx; i++){
-          drawImageToStage(currentProject.frames[i].url, ox, oy, w, h, opacity * ((i - (idx - onion) + 1)/(onion+1)));
-        }
-        // draw current frame at full opacity
-        if(currentProject.frames[idx]) drawImageToStage(currentProject.frames[idx].url, ox, oy, w, h, 1);
-      }else{
-        // placeholder
-        ctx.fillStyle = '#07142a'; ctx.fillRect(0,0,stage.width,stage.height);
-        ctx.fillStyle = '#1b3148'; ctx.fillRect(20,20,stage.width-40,stage.height-40);
-        ctx.fillStyle = '#7c3aed'; ctx.font = '22px Inter'; ctx.fillText('No frames yet — add images or capture from camera', 40, stage.height/2);
+    // stage drawing with reference video overlay
+    function renderStage(){ ctx.clearRect(0,0,stage.width,stage.height); const scalePercent = Number(scaleSlider.value)/100; const w = stage.width * scalePercent; const h = stage.height * scalePercent; const ox = (stage.width - w)/2; const oy = (stage.height - h)/2;
+      // draw reference video frame first if available (so it's under the onion/current frames)
+      const refOp = Number(refOpacity.value)/100;
+      if(refVideo && refVideo.src && (refVideo.readyState >= 2)){
+        try{
+          ctx.save(); ctx.globalAlpha = refOp; // aspect-fit
+          const ar = refVideo.videoWidth / refVideo.videoHeight || 16/9; const boxAr = w / h; let dw=w, dh=h; if(ar > boxAr){ dh = w / ar } else { dw = h * ar } const dx = ox + (w - dw)/2; const dy = oy + (h - dh)/2; ctx.drawImage(refVideo, dx, dy, dw, dh); ctx.restore();
+        }catch(e){ /* cross-origin or not yet ready */ }
       }
+
+      if(currentProject && currentProject.frames.length>0){ const idx = currentProject.currentIndex || 0; const onion = Number(onionCount.value); const opacity = Number(onionOpacity.value)/100; for(let i = Math.max(0, idx - onion); i < idx; i++){ drawImageToStage(currentProject.frames[i].url, ox, oy, w, h, opacity * ((i - (idx - onion) + 1)/(onion+1))); }
+        if(currentProject.frames[idx]) drawImageToStage(currentProject.frames[idx].url, ox, oy, w, h, 1);
+      } else { ctx.fillStyle = '#07142a'; ctx.fillRect(0,0,stage.width,stage.height); ctx.fillStyle = '#1b3148'; ctx.fillRect(20,20,stage.width-40,stage.height-40); ctx.fillStyle = '#7c3aed'; ctx.font = '18px Inter'; ctx.fillText('No frames yet — add images or capture from camera', 40, stage.height/2); }
     }
 
-    function drawImageToStage(url, x, y, w, h, alpha=1){ const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = ()=>{ ctx.save(); ctx.globalAlpha = alpha; // cover-mode drawing
-        // compute aspect-fit within w,h
-        const ar = img.width / img.height; const boxAr = w / h; let dw = w, dh = h; if(ar > boxAr){ dh = w / ar; } else { dw = h * ar; }
-        const dx = x + (w - dw)/2; const dy = y + (h - dh)/2; ctx.drawImage(img, dx, dy, dw, dh); ctx.restore(); };
-      img.src = url;
-    }
+    function drawImageToStage(url, x, y, w, h, alpha=1){ const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = ()=>{ ctx.save(); ctx.globalAlpha = alpha; const ar = img.width / img.height; const boxAr = w / h; let dw = w, dh = h; if(ar > boxAr){ dh = w / ar; } else { dw = h * ar; } const dx = x + (w - dw)/2; const dy = y + (h - dh)/2; ctx.drawImage(img, dx, dy, dw, dh); ctx.restore(); }; img.src = url; }
 
-    // export GIF
-    async function exportGIF(){ if(!currentProject || currentProject.frames.length===0){ alert('No frames to export'); return; }
-      const fps = Number(fpsSlider.value); const delay = 1000 / fps; const gif = new GIF({workers:2,quality:10,workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js'});
-      // add frames
+    // export GIF (optionally include reference overlay)
+    async function exportGIF(){ if(!currentProject || currentProject.frames.length===0){ alert('No frames to export'); return; } const fps = Number(fpsSlider.value); const delay = 1000 / fps; const gif = new GIF({workers:2,quality:10,workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js'});
       for(let i=0;i<currentProject.frames.length;i++){
-        const img = await loadImage(currentProject.frames[i].url);
-        // draw to temp canvas sized to stage
+        // prepare temp canvas
         const tmp = document.createElement('canvas'); tmp.width = stage.width; tmp.height = stage.height; const tc = tmp.getContext('2d'); tc.fillStyle = '#ffffff'; tc.fillRect(0,0,tmp.width,tmp.height);
-        // aspect-fit
-        const ar = img.width / img.height; const boxAr = tmp.width / tmp.height; let dw = tmp.width, dh = tmp.height; if(ar > boxAr){ dh = tmp.width / ar } else { dw = tmp.height * ar }
-        const dx = (tmp.width - dw)/2; const dy = (tmp.height - dh)/2; tc.drawImage(img, dx, dy, dw, dh);
+        // optionally draw reference video frame at appropriate time
+        if(includeRefExport.checked && refVideo && refVideo.src){ try{ const t = (i / fps) + (Number(refOffset.value) || 0); await seekRefVideoTo(t); tc.globalAlpha = Number(refOpacity.value)/100; tc.drawImage(refVideo, 0,0,tmp.width,tmp.height); tc.globalAlpha = 1; }catch(e){} }
+        // draw frame image
+        const img = await loadImage(currentProject.frames[i].url);
+        const ar = img.width / img.height; const boxAr = tmp.width / tmp.height; let dw = tmp.width, dh = tmp.height; if(ar > boxAr){ dh = tmp.width / ar } else { dw = tmp.height * ar } const dx = (tmp.width - dw)/2; const dy = (tmp.height - dh)/2; tc.drawImage(img, dx, dy, dw, dh);
         gif.addFrame(tc, {copy:true, delay});
       }
-      // show progress
       const exportingMsg = document.createElement('div'); exportingMsg.className='panel'; exportingMsg.style.position='fixed'; exportingMsg.style.left='50%'; exportingMsg.style.top='20px'; exportingMsg.style.transform='translateX(-50%)'; exportingMsg.textContent='Exporting GIF...'; document.body.appendChild(exportingMsg);
       gif.on('finished', function(blob){ const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (currentProject.title || 'animation') + '.gif'; a.click(); URL.revokeObjectURL(url); document.body.removeChild(exportingMsg); });
       gif.on('progress', p=>{ exportingMsg.textContent = 'Exporting GIF... ' + Math.round(p*100) + '%'; });
-      gif.render();
-    }
+      gif.render(); }
+
     function loadImage(url){ return new Promise((res,rej)=>{ const i = new Image(); i.crossOrigin='anonymous'; i.onload = ()=>res(i); i.onerror = rej; i.src = url }); }
 
-    // save/load project JSON
-    function saveProjectJson(){ if(!currentProject) return; const data = JSON.stringify(currentProject); const blob = new Blob([data],{type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (currentProject.title||'project') + '.json'; a.click(); URL.revokeObjectURL(url); }
-    function loadProjectFromFile(e){ const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ try{ const obj = JSON.parse(reader.result); if(obj && Array.isArray(obj.frames)){ obj.id = obj.id || 'p'+Date.now(); projects.push(obj); setCurrentProject(obj.id); renderProjectList(); } else alert('Invalid project file') }catch(err){ alert('Failed to parse JSON') } }; reader.readAsText(f); }
+    // seek reference video (helper)
+    function seekRefVideoTo(time){ return new Promise((resolve,reject)=>{ if(!refVideo || !refVideo.src) return resolve(); const onseek = ()=>{ refVideo.removeEventListener('seeked', onseek); resolve(); }; refVideo.addEventListener('seeked', onseek); try{ refVideo.currentTime = Math.min(Math.max(0,time), refVideo.duration || time); }catch(e){ refVideo.removeEventListener('seeked', onseek); resolve(); } setTimeout(()=>{ refVideo.removeEventListener('seeked', onseek); resolve(); }, 800); }); }
 
-    // utility
-    function renderEverything(){ renderProjectList(); renderTimeline(); renderStage(); updateProjectJson(); }
+    // save/load project JSON
+    function saveProjectJson(){ if(!currentProject) return; // include ref settings in JSON
+      const exportObj = {...currentProject, ref: {src: refVideo.src || null, offset: Number(refOffset.value)||0, opacity: Number(refOpacity.value)||30, sync: syncRef.checked}}; const data = JSON.stringify(exportObj); const blob = new Blob([data],{type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (currentProject.title||'project') + '.json'; a.click(); URL.revokeObjectURL(url); }
+    function loadProjectFromFile(e){ const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ try{ const obj = JSON.parse(reader.result); if(obj && Array.isArray(obj.frames)){ projects.push(obj); // if referenced video saved, restore
+            if(obj.ref && obj.ref.src){ loadReferenceVideo(obj.ref.src); refOffset.value = obj.ref.offset || 0; refOpacity.value = obj.ref.opacity || 30; syncRef.checked = !!obj.ref.sync; }
+            obj.id = obj.id || 'p'+Date.now(); setCurrentProject(obj.id); renderProjectList(); } else alert('Invalid project file') }catch(err){ alert('Failed to parse JSON') } }; reader.readAsText(f); }
 
     // keyboard shortcuts
-    window.addEventListener('keydown', (e)=>{
-      if(e.code === 'Space'){ e.preventDefault(); if(playing) stopPlayback(); else startPlayback(); }
-      if(e.key === ',' ) selectFrame((currentProject.currentIndex || 0) -1);
-      if(e.key === '.' ) selectFrame((currentProject.currentIndex || 0) +1);
-      if(e.key === 'Delete') deleteSelectedFrame();
-    });
+    window.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); if(playing) stopPlayback(); else startPlayback(); } if(e.key === ',' ) selectFrame((currentProject.currentIndex || 0) -1); if(e.key === '.' ) selectFrame((currentProject.currentIndex || 0) +1); if(e.key === 'Delete') deleteSelectedFrame(); });
 
     // init sample project
-    (function init(){
-      // setup stage size to 16:9 but scale to CSS
-      const baseW = 960, baseH = 540; stage.width = baseW; stage.height = baseH;
-      createNewProject(); projects[0].title = 'Demo Project'; renderProjectList(); setCurrentProject(projects[0].id);
-      // sample placeholder frames
-      const seeds = [ 'https://picsum.photos/seed/sm1/800/450', 'https://picsum.photos/seed/sm2/800/450', 'https://picsum.photos/seed/sm3/800/450' ];
-      seeds.forEach(u=> addFrameFromUrl(u));
-      // render loop for canvas (to allow images to load progressively)
-      setInterval(()=>renderStage(), 120);
-    })();
+    (function init(){ const baseW = 960, baseH = 540; stage.width = baseW; stage.height = baseH; createNewProject(); projects[0].title = 'Demo Project'; renderProjectList(); setCurrentProject(projects[0].id); const seeds = [ 'https://picsum.photos/seed/sm1/800/450', 'https://picsum.photos/seed/sm2/800/450', 'https://picsum.photos/seed/sm3/800/450' ]; seeds.forEach(u=> addFrameFromUrl(u)); setInterval(()=>renderStage(), 120); })();
   </script>
 </body>
 </html>
