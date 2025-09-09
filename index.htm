@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Manga Artists Dashboard</title>
+  <!-- Fonts & icons -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="" crossorigin="anonymous" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent:#7c3aed;
+      --accent-2:#06b6d4;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg) 0%, #071127 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+    .app{
+      max-width:1200px;
+      margin:0 auto;
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:22px;\    }
+    .brand{
+      display:flex;align-items:center;gap:12px
+    }
+    .logo{
+      width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:20px;box-shadow:0 8px 24px rgba(12,18,30,0.6)
+    }
+    h1{margin:0;font-size:20px}
+    header .controls{display:flex;gap:10px;align-items:center}
+    .search{
+      background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:12px;display:flex;gap:8px;align-items:center;min-width:260px
+    }
+    .search input{background:transparent;border:0;color:inherit;outline:none;width:100%}
+    .filter{background:var(--card);padding:8px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
+
+    .grid{
+      display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start
+    }
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px;border:1px solid rgba(255,255,255,0.03)}
+
+    /* artists list */
+    .artists{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .artist-card{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;border:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
+    .artist-card:hover{transform:translateY(-6px);box-shadow:0 14px 40px rgba(12,18,30,0.6)}
+    .artist-avatar{width:64px;height:64px;border-radius:10px;flex-shrink:0;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,0.04)}
+    .artist-info{flex:1}
+    .artist-name{font-weight:700}
+    .artist-meta{font-size:13px;color:var(--muted);margin-top:6px}
+
+    /* right column */
+    .stats{display:flex;flex-direction:column;gap:12px}
+    .stat-item{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);backdrop-filter:blur(6px); z-index:200}
+    .modal-card{width:min(920px,96%);max-height:86vh;overflow:auto;padding:18px;border-radius:16px;background:linear-gradient(180deg,#071028, #041022);border:1px solid rgba(255,255,255,0.04)}
+    .close{background:transparent;border:0;color:var(--muted);font-size:18px}
+    .collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:14px}
+    .collection-card{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
+    .cover{height:180px;border-radius:8px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,0.02)}
+
+    footer{color:var(--muted);font-size:13px;margin-top:18px;text-align:center}
+
+    /* responsive */
+    @media (max-width:900px){
+      .grid{grid-template-columns:1fr}
+      .brand h1{font-size:18px}
+      header{gap:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">M</div>
+        <div>
+          <h1>Manga Artists Collection</h1>
+          <div class="small">Browse artists, their works and collection metadata</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" placeholder="Search artists, manga title, genre..." />
+        </div>
+        <div class="filter">
+          <label for="genreFilter" class="small">Genre</label>
+          <select id="genreFilter" style="background:transparent;border:0;color:inherit;outline:none">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="filter">
+          <label for="sortBy" class="small">Sort</label>
+          <select id="sortBy" style="background:transparent;border:0;color:inherit;outline:none">
+            <option value="name">Artist name</option>
+            <option value="series"># Series (desc)</option>
+            <option value="year">Latest release (desc)</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div>
+            <h2 style="margin:0">Artists</h2>
+            <div class="small">Total artists: <span id="totalArtists">0</span></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button id="exportCsv" class="filter" title="Export currently visible data as CSV">Export CSV</button>
+            <button id="resetBtn" class="filter" title="Reset filters">Reset</button>
+          </div>
+        </div>
+
+        <div class="artists" id="artistsList">
+          <!-- artist cards generated by JS -->
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="stats">
+          <div class="stat-item">
+            <div class="small">Overview</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+              <div style="font-size:28px;font-weight:700" id="totalSeries">0</div>
+              <div class="small">series across <strong id="artistCount">0</strong> artists</div>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <canvas id="seriesChart" height="220"></canvas>
+          </div>
+
+          <div class="stat-item small">
+            Tip: Click an artist card to open their full collection and metadata.
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      Built with ❤️ — Single-file demo. Save as <code>manga-dashboard.html</code> and open in a browser.
+    </footer>
+  </div>
+
+  <!-- Modal skeleton -->
+  <div id="modalRoot" style="display:none"></div>
+
+  <script>
+    // Sample data for manga artists and collections
+    const ARTISTS_SAMPLE = [
+      {
+        id: 'a01',
+        name: 'Hayato Sakamori',
+        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=60',
+        bio: 'Known for high-energy shonen battles and kinetic layout styles.',
+        country: 'Japan',
+        collections: [
+          {title:'Kurogane Hearts', genre:'Shonen', year:2014, volumes:18, cover:'https://picsum.photos/seed/kh/400/600'},
+          {title:'Neon Alley', genre:'Sci-Fi', year:2019, volumes:6, cover:'https://picsum.photos/seed/na/400/600'},
+        ]
+      },
+      {
+        id: 'a02',
+        name: 'Emi Takashi',
+        avatar: 'https://images.unsplash.com/photo-1545996124-9b37f8f1f9e3?auto=format&fit=crop&w=400&q=60',
+        bio: 'Slice-of-life storyteller with delicate character work.',
+        country: 'Japan',
+        collections: [
+          {title:'Cafe Moonlight', genre:'Slice of Life', year:2016, volumes:8, cover:'https://picsum.photos/seed/cm/400/600'},
+          {title:'Paper Lanterns', genre:'Drama', year:2021, volumes:3, cover:'https://picsum.photos/seed/pl/400/600'},
+          {title:'Blooming Streets', genre:'Romance', year:2012, volumes:12, cover:'https://picsum.photos/seed/bs/400/600'},
+        ]
+      },
+      {
+        id: 'a03',
+        name: 'Ryuichi Okamoto',
+        avatar: 'https://images.unsplash.com/photo-1547112018-9c5ffb6d0f2a?auto=format&fit=crop&w=400&q=60',
+        bio: 'Dark fantasy artist; heavy atmosphere and detailed linework.',
+        country: 'Japan',
+        collections: [
+          {title:'Ashen Empire', genre:'Dark Fantasy', year:2011, volumes:24, cover:'https://picsum.photos/seed/ae/400/600'},
+          {title:'Witchbound', genre:'Horror', year:2020, volumes:4, cover:'https://picsum.photos/seed/wb/400/600'},
+        ]
+      },
+      {
+        id: 'a04',
+        name: 'Lina Mori',
+        avatar: 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?auto=format&fit=crop&w=400&q=60',
+        bio: 'Experimental artist merging manga with western comics.',
+        country: 'Japan/USA',
+        collections: [
+          {title:'Glass City', genre:'Sci-Fi', year:2018, volumes:7, cover:'https://picsum.photos/seed/gc/400/600'},
+          {title:'Mechanica', genre:'Mecha', year:2022, volumes:2, cover:'https://picsum.photos/seed/me/400/600'},
+          {title:'Afterimage', genre:'Psychological', year:2015, volumes:9, cover:'https://picsum.photos/seed/ai/400/600'},
+        ]
+      },
+      {
+        id: 'a05',
+        name: 'Takumi Arai',
+        avatar: 'https://images.unsplash.com/photo-1544005317-22a9b6a7f1f6?auto=format&fit=crop&w=400&q=60',
+        bio: 'Energetic fight choreography, very popular among action fans.',
+        country: 'Japan',
+        collections: [
+          {title:'Blade of Orion', genre:'Shonen', year:2009, volumes:32, cover:'https://picsum.photos/seed/bo/400/600'},
+        ]
+      },
+      {
+        id: 'a06',
+        name: 'Mika Hoshino',
+        avatar: 'https://images.unsplash.com/photo-1545996125-5c0b6b6d9a41?auto=format&fit=crop&w=400&q=60',
+        bio: 'Detailed costumes and beautiful period pieces.',
+        country: 'Japan',
+        collections: [
+          {title:'Silk & Swords', genre:'Historical', year:2013, volumes:14, cover:'https://picsum.photos/seed/ss/400/600'},
+          {title:'Red Garden', genre:'Drama', year:2017, volumes:6, cover:'https://picsum.photos/seed/rg/400/600'},
+        ]
+      }
+    ];
+
+    // App state
+    let artists = [...ARTISTS_SAMPLE];
+    let filtered = [...artists];
+
+    // DOM refs
+    const artistsList = document.getElementById('artistsList');
+    const totalArtists = document.getElementById('totalArtists');
+    const totalSeriesEl = document.getElementById('totalSeries');
+    const artistCountEl = document.getElementById('artistCount');
+    const genreFilter = document.getElementById('genreFilter');
+    const searchInput = document.getElementById('searchInput');
+    const sortBy = document.getElementById('sortBy');
+    const modalRoot = document.getElementById('modalRoot');
+    const exportCsvBtn = document.getElementById('exportCsv');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // utility: unique genres
+    function getAllGenres(list){
+      const s = new Set();
+      list.forEach(a=>a.collections.forEach(c=>s.add(c.genre)));
+      return [...s].sort();
+    }
+
+    function renderGenreOptions(){
+      const genres = getAllGenres(artists);
+      genres.forEach(g=>{
+        const opt = document.createElement('option'); opt.value=g; opt.textContent=g; genreFilter.appendChild(opt)
+      })
+    }
+
+    function renderArtists(list){
+      artistsList.innerHTML='';
+      list.forEach(a=>{
+        const card = document.createElement('div'); card.className='artist-card';
+        card.innerHTML = `
+          <div class="artist-avatar" style="background-image:url('${a.avatar}')"></div>
+          <div class="artist-info">
+            <div class="artist-name">${escapeHtml(a.name)}</div>
+            <div class="artist-meta">${a.country} • ${a.collections.length} series • Latest: ${getLatestYear(a)}</div>
+            <div class="small" style="margin-top:6px">${escapeHtml(a.bio)}</div>
+          </div>
+        `;
+        card.addEventListener('click', ()=>openArtistModal(a));
+        artistsList.appendChild(card);
+      });
+      totalArtists.textContent = list.length;
+    }
+
+    function getLatestYear(a){
+      return Math.max(...a.collections.map(c=>c.year));
+    }
+
+    function updateStats(list){
+      const totalSeries = list.reduce((sum,a)=>sum + a.collections.length,0);
+      const artistCount = list.length;
+      totalSeriesEl.textContent = totalSeries;
+      artistCountEl.textContent = artistCount;
+      renderChart(list);
+    }
+
+    // Chart
+    let chartInstance = null;
+    function renderChart(list){
+      const ctx = document.getElementById('seriesChart');
+      const labels = list.map(a=>a.name);
+      const data = list.map(a=>a.collections.length);
+      if(chartInstance){chartInstance.data.labels = labels; chartInstance.data.datasets[0].data = data; chartInstance.update(); return}
+      chartInstance = new Chart(ctx, {
+        type:'bar',
+        data:{labels, datasets:[{label:'# series', data}]},
+        options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+      });
+    }
+
+    // Filtering & searching
+    function applyFilters(){
+      const q = searchInput.value.trim().toLowerCase();
+      const genre = genreFilter.value;
+      let res = artists.filter(a=>{
+        // match artist name or bio
+        const artistMatch = a.name.toLowerCase().includes(q) || a.bio.toLowerCase().includes(q) || a.country.toLowerCase().includes(q);
+        // match collection titles/genres
+        const collectionMatch = a.collections.some(c=>c.title.toLowerCase().includes(q) || c.genre.toLowerCase().includes(q));
+        if(q && !(artistMatch || collectionMatch)) return false;
+        if(genre && !a.collections.some(c=>c.genre===genre)) return false;
+        return true;
+      });
+
+      const s = sortBy.value;
+      if(s==='series') res.sort((x,y)=>y.collections.length - x.collections.length)
+      else if(s==='year') res.sort((x,y)=>getLatestYear(y) - getLatestYear(x))
+      else res.sort((x,y)=>x.name.localeCompare(y.name))
+
+      filtered = res;
+      renderArtists(filtered);
+      updateStats(filtered);
+    }
+
+    // Modal for artist details
+    function openArtistModal(artist){
+      modalRoot.innerHTML = '';
+      const modal = document.createElement('div'); modal.className='modal';
+      modal.innerHTML = `
+        <div class="modal-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div style="width:78px;height:78px;border-radius:12px;background-image:url('${artist.avatar}');background-size:cover;background-position:center"></div>
+              <div>
+                <div style="font-weight:800;font-size:18px">${escapeHtml(artist.name)}</div>
+                <div class="small">${artist.country} • ${artist.collections.length} series</div>
+                <div class="small" style="margin-top:6px">${escapeHtml(artist.bio)}</div>
+              </div>
+            </div>
+            <div><button class="close" id="closeModal"><i class="fa-solid fa-xmark"></i></button></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="small">Collections</div>
+            <div class="collection-grid">
+              ${artist.collections.map(c=>`
+                <div class="collection-card">
+                  <div class="cover" style="background-image:url('${c.cover}')"></div>
+                  <div style="font-weight:700">${escapeHtml(c.title)}</div>
+                  <div class="small">${c.genre} • ${c.year} • ${c.volumes} vols</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      modalRoot.appendChild(modal);
+      modalRoot.style.display = 'block';
+      document.body.appendChild(modalRoot);
+
+      document.getElementById('closeModal').addEventListener('click', closeModal);
+      modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+    }
+    function closeModal(){ modalRoot.innerHTML=''; modalRoot.style.display='none'; }
+
+    // CSV export
+    function exportToCsv(list){
+      const rows = [];
+      rows.push(['Artist ID','Artist Name','Country','Bio','Series Title','Genre','Year','Volumes']);
+      list.forEach(a=>{
+        a.collections.forEach(c=> rows.push([a.id,a.name,a.country,a.bio,c.title,c.genre,c.year,c.volumes]));
+      });
+      const csv = rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='manga_artists_export.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // small helpers
+    function escapeHtml(str){
+      if(!str) return '';
+      return str.replace(/[&<>\"']/g, function(tag) {
+        const charsToReplace = {
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        };
+        return charsToReplace[tag] || tag;
+      });
+    }
+
+    // init
+    (function init(){
+      renderGenreOptions();
+      renderArtists(artists);
+      updateStats(artists);
+
+      // events
+      searchInput.addEventListener('input', applyFilters);
+      genreFilter.addEventListener('change', applyFilters);
+      sortBy.addEventListener('change', applyFilters);
+      exportCsvBtn.addEventListener('click', ()=>exportToCsv(filtered));
+      resetBtn.addEventListener('click', ()=>{
+        searchInput.value=''; genreFilter.value=''; sortBy.value='name'; applyFilters();
+      });
+
+    })();
+  </script>
+</body>
+</html>
